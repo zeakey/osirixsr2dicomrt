@@ -60,8 +60,8 @@ def process(data_dir):
             warn(f"study \"{study_prefix}\" OsirixSR \"{ignored_str}\" ignored due to unable to find associated dicom")
             osirix_sr = list(itertools.compress(osirix_sr, associated))
 
-        # assign Osirix SR to series
-        # since the Osirix SR ROIs might be annotated on difference series
+        # assign Osirix SR files to series
+        # Osirix SR annotations might be annotated on different series, e.g. ADC and T2.
         series_instance_uid2osirixsr = dict()
         for osx in osirix_sr:
             series_instance_uid = SOPInstanceUID_lookup_table[osirix_get_reference_uid(osx)].SeriesInstanceUID
@@ -105,13 +105,14 @@ def process(data_dir):
                     else:
                         named_rois[roi.name] = [Polygon2D(coords=[], h=h, w=w)] * len(series)
                         named_rois[roi.name][roi_idx] = Polygon2D(coords=roi.coords.flatten().tolist(), h=h, w=w)
-            for name, roi in named_rois.items():
-                rtstruct.add_roi(polygon=roi, name=name)
-            save_path = osp.join(study_prefix, "RTStructure", f'{series[0].SeriesDescription.replace(" ", "-")}_rtstruct.dcm')
-            os.makedirs(osp.dirname(save_path), exist_ok=True)
-            print(f"Saved structure set to \"{save_path}\"")
-            rtstruct.save(save_path)
-            shutil.rmtree(tmp_dir)
+            if len(named_rois) > 0:
+                for name, roi in named_rois.items():
+                    rtstruct.add_roi(polygon=roi, name=name)
+                save_path = osp.join(study_prefix, "RTStructure", f'{series[0].SeriesDescription.replace(" ", "-")}_rtstruct.dcm')
+                os.makedirs(osp.dirname(save_path), exist_ok=True)
+                print(f"Saved structure set to \"{save_path}\"")
+                rtstruct.save(save_path)
+                shutil.rmtree(tmp_dir)
 
 
 if __name__ == "__main__":
