@@ -39,7 +39,7 @@ class OsirixSRParser(object):
         roi_loc = index_all(tmp, marker)
         if len(roi_loc) > 0:
             num_roi = len(roi_loc)
-            roi_loc.append(len(tmp))
+            roi_loc.append(len(tmp)-1)
 
             for i in range(num_roi):
                 txt1 = tmp[roi_loc[i]:roi_loc[i+1]+1]
@@ -76,7 +76,7 @@ class OsirixSRParser(object):
                         if len(name) > 2 and name[-1] == "P":
                             name = name[0:-1]
                         if name[-1] == "P" and i > 0:
-                            name = rois[i-1]['name']
+                            name = rois[i-1].name
                         else:
                             name = name[1:]
                     else:
