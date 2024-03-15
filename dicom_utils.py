@@ -33,7 +33,13 @@ def is_osirix_sr(ds):
 
 
 def osirix_get_reference_uid(ds):
-    return pydicom.dcmread(ds.fullpath).ContentSequence[0].ReferencedSOPSequence[0].ReferencedSOPInstanceUID
+    try:
+        ref = pydicom.dcmread(ds.fullpath).ContentSequence[0].ReferencedSOPSequence[0].ReferencedSOPInstanceUID
+    except Exception as e:
+        ref = None
+        print(f"Cannot read referred dicom: {e}")
+    return ref
+
 
 
 def get_common_prefix(paths):
