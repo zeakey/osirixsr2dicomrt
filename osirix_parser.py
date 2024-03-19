@@ -57,7 +57,7 @@ class OsirixSRParser(object):
                         tt = txt2.index('}')
                         txt2 = txt2[1:tt]
                         endofpoint = abc1[ind2] + tt
-                    pt = re.findall('\d+\.\d+,\d+\.\d+', txt2)
+                    pt = re.findall('\d+\.?\d*,\d+\.?\d*', txt2)
                     pt = np.array(pt[0].split(','), dtype=np.float32)[None, :]
                     points.append(pt)
                 txt3 = txt1[endofpoint-1:abc2[-1]+1]
