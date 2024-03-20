@@ -1,4 +1,5 @@
 import pydicom
+import numpy as np
 import os.path as osp
 import pathlib
 from glob import glob
@@ -77,6 +78,7 @@ def read_dicom_info(input):
             StudyInstanceUID=ds.StudyInstanceUID,
             InstanceNumber=InstanceNumber,
             SliceLocation=float(ds.SliceLocation) if hasattr(ds, 'SliceLocation') else None,
+            ImagePositionPatient=np.array(ds.ImagePositionPatient) if hasattr(ds, 'ImagePositionPatient') else None,
             is_osirix_sr=hasattr(ds, 'EncapsulatedDocument'))
         ds = dotdict(ds)
         results.append(ds)

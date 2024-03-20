@@ -2,7 +2,7 @@ import os, shutil, argparse, time
 from glob import glob
 import os.path as osp
 from warnings import warn
-import itertools, os, sys
+import itertools, os, sys, re
 RT_UTILS=osp.join(osp.dirname(__file__), "rt-utils")
 sys.path.insert(0, RT_UTILS)
 from rt_utils import RTStructBuilder
@@ -94,7 +94,7 @@ def process(data_dir):
                 continue
             h, w = dcmread(series[0].fullpath).pixel_array.shape
             named_rois = dict()
-            up_side_down = series[-1].SliceLocation < series[0].SliceLocation
+            up_side_down = series[-1].ImagePositionPatient[2] < series[0].ImagePositionPatient[2]
             for osx in osirix_sr:
                 instance_number = int(SOPInstanceUID_lookup_table[osirix_get_reference_uid(osx)].InstanceNumber)
                 roi_idx = len(series) - instance_number if up_side_down else instance_number - 1
@@ -108,7 +108,9 @@ def process(data_dir):
             if len(named_rois) > 0:
                 for name, roi in named_rois.items():
                     rtstruct.add_roi(polygon=roi, name=name)
-                save_path = osp.join(study_prefix, "RTStructure", f'{series[0].SeriesDescription.replace(" ", "-")}_rtstruct.dcm')
+                filename = series[0].SeriesDescription.replace(" ", "-").replace('/', '-').replace('\\', '-')
+                filename = re.sub(r'-+', '-', filename) + '_rtstruct.dcm'
+                save_path = osp.join(study_prefix, "RTStructure", filename)
                 os.makedirs(osp.dirname(save_path), exist_ok=True)
                 print(f"Saved structure set to \"{save_path}\"")
                 rtstruct.save(save_path)
