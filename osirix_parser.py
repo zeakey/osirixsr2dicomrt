@@ -1,7 +1,7 @@
 import re
 import numpy as np
 from typing import Any
-
+from warnings import warn
 
 class ROI(object):
     def __init__(self, name, coords) -> None:
@@ -69,7 +69,8 @@ class OsirixSRParser(object):
                 if len(matches) == 0:
                     matches = re.findall(r'\}(.*?)\_', txt3)
                 if len(matches) < 1:
-                    raise RuntimeError(f"Cannot parse name of roi\#{i}")
+                    warn(f"Cannot parse name of roi\#{i}")
+                    name = 'You-have-to-rename'
                 else:
                     name = matches[0]
                     if len(name) > 0:
