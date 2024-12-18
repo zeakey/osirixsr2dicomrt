@@ -69,7 +69,7 @@ def read_dicom_info(input):
         except:
             warn(f"{d} is not a valid dicom file")
             continue
-        InstanceNumber = ds.InstanceNumber if hasattr(ds, 'InstanceNumber') else None
+        InstanceNumber = int(ds.InstanceNumber) if hasattr(ds, 'InstanceNumber') else None
         ds = dict(
             fullpath=d,
             SeriesDescription=ds.SeriesDescription if hasattr(ds, "SeriesDescription") else "",
@@ -99,7 +99,7 @@ def group_into_studies(dicoms):
 
 
 
-def group_study_into_series(dicoms):
+def group_into_series(dicoms):
     """
     group dicoms of the same study into different series according to their `SeriesInstanceUID`
     """
@@ -109,6 +109,19 @@ def group_study_into_series(dicoms):
             series[ds.SeriesInstanceUID] = [ds]
         else:
             series[ds.SeriesInstanceUID].append(ds)
+    # sort
+    for k in series.keys():
+        series[k] = sorted(series[k], key=lambda x: x.fullpath)
+    # remove duplicate
+    for k in series.keys():
+        sop_uid = set()
+        items = []
+        for s in series[k]:
+            if s.SOPInstanceUID not in sop_uid:
+                sop_uid.add(s.SOPInstanceUID)
+                items.append(s)
+        series[k] = items
+
     return series
 
 
